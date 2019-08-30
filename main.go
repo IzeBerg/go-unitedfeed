@@ -93,27 +93,7 @@ func ForwardMessages(tg *tdlib.Client, username string, fromMessageID int64, to 
 	return fromMessageID, nil
 }
 
-func main() {
-	db := initDB()
-	initFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
-
-	tg := initTG()
-
-	defer func() {
-		defer db.Close()
-		if err := sentry.Recover(); err != nil {
-			log.Println(err)
-		}
-		tg.Close()
-		time.Sleep(time.Second * 5)
-		finiFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
-	}()
-
-	chat, err := tg.SearchPublicChat(ChatUsername)
-	if err != nil {
-		panic(err)
-	}
-
+func Update(db *redis.Client, tg *tdlib.Client, chat *tdlib.Chat)  {
 	if data, err := db.HGetAll(redisChatsKey).Result(); err == nil {
 		for username, fromMessageIDStr := range data {
 			if fromMessageID, err := strconv.ParseInt(fromMessageIDStr, 10, 64); err == nil {
@@ -137,4 +117,32 @@ func main() {
 	} else {
 		panic(err)
 	}
+}
+
+func main() {
+	db := initDB()
+	initFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
+
+	tg := initTG()
+
+	defer func() {
+		defer db.Close()
+		if err := sentry.Recover(); err != nil {
+			log.Println(err)
+		}
+		tg.Close()
+		time.Sleep(time.Second * 5)
+		finiFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
+	}()
+
+	chat, err := tg.SearchPublicChat(ChatUsername)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		time.Sleep(time.Minute)
+		Update(db, tg, chat)
+	}
+
 }
