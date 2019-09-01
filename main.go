@@ -126,12 +126,23 @@ func main() {
 	tg := initTG()
 
 	defer func() {
-		defer db.Close()
 		if err := sentry.Recover(); err != nil {
 			log.Println(err)
 		}
+
+		defer db.Close()
 		tg.Close()
-		time.Sleep(time.Second * 5)
+		for {
+			if state, err := tg.GetAuthorizationState(); err == nil {
+				if state.GetAuthorizationStateEnum() == tdlib.AuthorizationStateClosedType {
+					break
+				}
+			} else {
+				sentry.CaptureException(err)
+				log.Println(err)
+				break
+			}
+		}
 		finiFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
 	}()
 
