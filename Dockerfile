@@ -18,3 +18,4 @@ RUN go get -v
 RUN go build -o /app
 
 WORKDIR /
+CMD /app
