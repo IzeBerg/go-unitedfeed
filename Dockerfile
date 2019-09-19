@@ -1,14 +1,6 @@
-FROM alpine:latest
+FROM izeberg/tdlib:latest
 
-RUN apk add --update alpine-sdk linux-headers git zlib-dev openssl-dev gperf php php-ctype cmake make musl-dev go
-
-# Build tdlib
-RUN git clone https://github.com/tdlib/td.git
-RUN mkdir td/build
-WORKDIR td/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release ..
-RUN cmake --build .
-RUN make install
+RUN apk add --update go git mercurial musl-dev
 
 # Build app
 ENV GOPATH=/go
