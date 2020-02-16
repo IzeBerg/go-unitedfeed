@@ -21,7 +21,7 @@ func initFileDatabase(db *redis.Client, key, path string) {
 	}
 }
 
-func finiFileDatabase(db *redis.Client, key, path string) {
+func saveFileDatabase(db *redis.Client, key, path string) {
 	if data, err := ioutil.ReadFile(filepath.Join(path, `td.binlog`)); err == nil {
 		if err := db.Set(key, data, 0).Err(); err != nil {
 			sentry.CaptureException(err)

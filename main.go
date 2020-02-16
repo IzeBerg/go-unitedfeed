@@ -147,6 +147,7 @@ func main() {
 	initFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
 
 	tg := initTG()
+	saveFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
 
 	defer func() {
 		if err := sentry.Recover(); err != nil {
@@ -166,7 +167,7 @@ func main() {
 				break
 			}
 		}
-		finiFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
+		saveFileDatabase(db, redisTdlibKey, tdlibDatabaseDir)
 	}()
 
 	chat, err := GetChat(tg, ChatUsername)
